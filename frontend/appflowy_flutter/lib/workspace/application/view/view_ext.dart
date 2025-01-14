@@ -347,6 +347,7 @@ extension ViewFinder on List<ViewPB> {
 
       if (view.childViews.isNotEmpty) {
         final v = view.childViews.findView(id);
+
         if (v != null) {
           return v;
         }
