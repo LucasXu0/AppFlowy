@@ -38,6 +38,11 @@ Future<bool> afLaunchUri(
     );
   }
 
+  // on Linux, add https scheme to the uri if it is not a valid url
+  if (Platform.isLinux && !isURL(url, {'require_protocol': true})) {
+    uri = Uri.parse('https://$url');
+  }
+
   // try to launch the uri directly
   bool result;
   try {
