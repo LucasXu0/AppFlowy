@@ -79,7 +79,8 @@ pub(crate) fn install_path() -> Option<PathBuf> {
   return None;
 }
 
-pub fn is_plugin_ready() -> bool {
+#[cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))]
+pub(crate) fn is_plugin_ready() -> bool {
   ollama_plugin_path().exists() || ollama_plugin_command_available()
 }
 
