@@ -89,7 +89,7 @@ pub fn init(user_manager: Weak<UserManager>) -> AFPlugin {
 pub enum UserEvent {
   /// Only use when the [Authenticator] is Local or SelfHosted
   /// Logging into an account using a register email and password
-  #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
+  #[event(input = "SignInPayloadPB", output = "GotrueTokenResponsePB")]
   SignInWithEmailPassword = 0,
 
   /// Only use when the [Authenticator] is Local or SelfHosted

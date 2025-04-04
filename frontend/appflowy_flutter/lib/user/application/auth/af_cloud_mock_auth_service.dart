@@ -33,7 +33,8 @@ class AppFlowyCloudMockAuthService implements AuthService {
   }
 
   @override
-  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>>
+      signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},

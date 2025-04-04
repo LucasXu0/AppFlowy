@@ -30,20 +30,25 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     on<SignInEvent>(
       (event, emit) async {
         await event.when(
-          signedInWithUserEmailAndPassword: () async => _onSignIn(emit),
-          signedInWithOAuth: (platform) async => _onSignInWithOAuth(
+          signInWithEmailAndPassword: (email, password) async =>
+              _onSignInWithEmailAndPassword(
             emit,
-            platform,
+            email: email,
+            password: password,
           ),
-          signedInAsGuest: () async => _onSignInAsGuest(emit),
-          signedWithMagicLink: (email) async => _onSignInWithMagicLink(
+          signInWithOAuth: (platform) async => _onSignInWithOAuth(
             emit,
-            email,
+            platform: platform,
+          ),
+          signInAsGuest: () async => _onSignInAsGuest(emit),
+          signInWithMagicLink: (email) async => _onSignInWithMagicLink(
+            emit,
+            email: email,
           ),
           signInWithPasscode: (email, passcode) async => _onSignInWithPasscode(
             emit,
-            email,
-            passcode,
+            email: email,
+            passcode: passcode,
           ),
           deepLinkStateChange: (result) => _onDeepLinkStateChange(emit, result),
           cancel: () {
@@ -128,26 +133,34 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     }
   }
 
-  Future<void> _onSignIn(Emitter<SignInState> emit) async {
+  Future<void> _onSignInWithEmailAndPassword(
+    Emitter<SignInState> emit, {
+    required String email,
+    required String password,
+  }) async {
     final result = await authService.signInWithEmailPassword(
-      email: state.email ?? '',
-      password: state.password ?? '',
+      email: email,
+      password: password,
     );
     emit(
       result.fold(
-        (userProfile) => state.copyWith(
-          isSubmitting: false,
-          successOrFail: FlowyResult.success(userProfile),
-        ),
+        (gotrueTokenResponse) {
+          getIt<AppFlowyCloudDeepLink>().passGotrueTokenResponse(
+            gotrueTokenResponse,
+          );
+          return state.copyWith(
+            isSubmitting: false,
+          );
+        },
         (error) => _stateFromCode(error),
       ),
     );
   }
 
   Future<void> _onSignInWithOAuth(
-    Emitter<SignInState> emit,
-    String platform,
-  ) async {
+    Emitter<SignInState> emit, {
+    required String platform,
+  }) async {
     emit(
       state.copyWith(
         isSubmitting: true,
@@ -170,9 +183,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   Future<void> _onSignInWithMagicLink(
-    Emitter<SignInState> emit,
-    String email,
-  ) async {
+    Emitter<SignInState> emit, {
+    required String email,
+  }) async {
     emit(
       state.copyWith(
         isSubmitting: true,
@@ -193,10 +206,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   }
 
   Future<void> _onSignInWithPasscode(
-    Emitter<SignInState> emit,
-    String email,
-    String passcode,
-  ) async {
+    Emitter<SignInState> emit, {
+    required String email,
+    required String passcode,
+  }) async {
     emit(
       state.copyWith(
         isSubmitting: true,
@@ -286,19 +299,33 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
 @freezed
 class SignInEvent with _$SignInEvent {
-  const factory SignInEvent.signedInWithUserEmailAndPassword() =
-      SignedInWithUserEmailAndPassword;
-  const factory SignInEvent.signedInWithOAuth(String platform) =
-      SignedInWithOAuth;
-  const factory SignInEvent.signedInAsGuest() = SignedInAsGuest;
-  const factory SignInEvent.signedWithMagicLink(String email) =
-      SignedWithMagicLink;
-  const factory SignInEvent.emailChanged(String email) = EmailChanged;
-  const factory SignInEvent.passwordChanged(String password) = PasswordChanged;
+  // Sign in methods
+  const factory SignInEvent.signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) = SignInWithEmailAndPassword;
+  const factory SignInEvent.signInWithOAuth({
+    required String platform,
+  }) = SignInWithOAuth;
+  const factory SignInEvent.signInAsGuest() = SignInAsGuest;
+  const factory SignInEvent.signInWithMagicLink({
+    required String email,
+  }) = SignInWithMagicLink;
+  const factory SignInEvent.signInWithPasscode({
+    required String email,
+    required String passcode,
+  }) = SignInWithPasscode;
+
+  // Event handlers
+  const factory SignInEvent.emailChanged({
+    required String email,
+  }) = EmailChanged;
+  const factory SignInEvent.passwordChanged({
+    required String password,
+  }) = PasswordChanged;
   const factory SignInEvent.deepLinkStateChange(DeepLinkResult result) =
       DeepLinkStateChange;
-  const factory SignInEvent.signInWithPasscode(String email, String passcode) =
-      SignInWithPasscode;
+
   const factory SignInEvent.cancel() = Cancel;
   const factory SignInEvent.switchLoginType(LoginType type) = SwitchLoginType;
 }

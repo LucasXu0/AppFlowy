@@ -3,8 +3,8 @@ import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 
-class ContinueWithMagicLinkOrPasscode extends StatefulWidget {
-  const ContinueWithMagicLinkOrPasscode({
+class ContinueWithMagicLinkOrPasscodePage extends StatefulWidget {
+  const ContinueWithMagicLinkOrPasscodePage({
     super.key,
     required this.backToLogin,
     required this.email,
@@ -16,12 +16,12 @@ class ContinueWithMagicLinkOrPasscode extends StatefulWidget {
   final ValueChanged<String> onEnterPasscode;
 
   @override
-  State<ContinueWithMagicLinkOrPasscode> createState() =>
-      _ContinueWithMagicLinkOrPasscodeState();
+  State<ContinueWithMagicLinkOrPasscodePage> createState() =>
+      _ContinueWithMagicLinkOrPasscodePageState();
 }
 
-class _ContinueWithMagicLinkOrPasscodeState
-    extends State<ContinueWithMagicLinkOrPasscode> {
+class _ContinueWithMagicLinkOrPasscodePageState
+    extends State<ContinueWithMagicLinkOrPasscodePage> {
   final passcodeController = TextEditingController();
 
   bool isEnteringPasscode = false;

@@ -19,7 +19,8 @@ class BackendAuthService implements AuthService {
   final AuthenticatorPB authType;
 
   @override
-  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>>
+      signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
@@ -29,8 +30,7 @@ class BackendAuthService implements AuthService {
       ..password = password
       ..authType = authType
       ..deviceId = await getDeviceId();
-    final response = UserEventSignInWithEmailPassword(request).send();
-    return response.then((value) => value);
+    return UserEventSignInWithEmailPassword(request).send();
   }
 
   @override

@@ -120,16 +120,13 @@ where
     &self,
     email: &str,
     password: &str,
-  ) -> Result<UserProfile, FlowyError> {
+  ) -> Result<GotrueTokenResponse, FlowyError> {
     let password = password.to_string();
     let email = email.to_string();
     let try_get_client = self.server.try_get_client();
     let client = try_get_client?;
-    client.sign_in_password(&email, &password).await?;
-    let profile = client.get_profile().await?;
-    let token = client.get_token()?;
-    let profile = user_profile_from_af_profile(token, profile)?;
-    Ok(profile)
+    let response = client.sign_in_password(&email, &password).await?;
+    Ok(response)
   }
 
   async fn sign_in_with_magic_link(

@@ -149,7 +149,7 @@ pub trait UserCloudService: Send + Sync + 'static {
     &self,
     email: &str,
     password: &str,
-  ) -> Result<UserProfile, FlowyError>;
+  ) -> Result<GotrueTokenResponse, FlowyError>;
 
   async fn sign_in_with_magic_link(&self, email: &str, redirect_to: &str)
     -> Result<(), FlowyError>;

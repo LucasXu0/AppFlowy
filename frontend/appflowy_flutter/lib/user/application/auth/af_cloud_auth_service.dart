@@ -32,12 +32,17 @@ class AppFlowyCloudAuthService implements AuthService {
   }
 
   @override
-  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>>
+      signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params = const {},
   }) async {
-    throw UnimplementedError();
+    return _backendAuthService.signInWithEmailPassword(
+      email: email,
+      password: password,
+      params: params,
+    );
   }
 
   @override

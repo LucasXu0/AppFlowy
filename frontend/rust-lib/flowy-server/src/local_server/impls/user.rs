@@ -98,7 +98,7 @@ impl UserCloudService for LocalServerUserAuthServiceImpl {
     &self,
     _email: &str,
     _password: &str,
-  ) -> Result<UserProfile, FlowyError> {
+  ) -> Result<GotrueTokenResponse, FlowyError> {
     Err(FlowyError::local_version_not_support().with_context("Not support"))
   }
 

@@ -41,7 +41,7 @@ class ThirdPartySignInButtons extends StatelessWidget {
 
   void _signIn(BuildContext context, String provider) {
     context.read<SignInBloc>().add(
-          SignInEvent.signedInWithOAuth(provider),
+          SignInEvent.signInWithOAuth(platform: provider),
         );
   }
 }

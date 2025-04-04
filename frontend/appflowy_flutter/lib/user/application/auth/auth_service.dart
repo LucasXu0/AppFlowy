@@ -23,7 +23,8 @@ abstract class AuthService {
   ///
   /// Returns [UserProfilePB] if the user is authenticated, otherwise returns [FlowyError].
 
-  Future<FlowyResult<UserProfilePB, FlowyError>> signInWithEmailPassword({
+  Future<FlowyResult<GotrueTokenResponsePB, FlowyError>>
+      signInWithEmailPassword({
     required String email,
     required String password,
     Map<String, String> params,

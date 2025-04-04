@@ -721,6 +721,19 @@ impl UserManager {
     Ok(url)
   }
 
+  pub(crate) async fn sign_in_with_password(
+    &self,
+    email: &str,
+    password: &str,
+  ) -> Result<GotrueTokenResponse, FlowyError> {
+    self
+      .cloud_services
+      .set_user_authenticator(&Authenticator::AppFlowyCloud);
+    let auth_service = self.cloud_services.get_user_service()?;
+    let response = auth_service.sign_in_with_password(email, password).await?;
+    Ok(response)
+  }
+
   pub(crate) async fn sign_in_with_magic_link(
     &self,
     email: &str,
@@ -745,9 +758,7 @@ impl UserManager {
       .cloud_services
       .set_user_authenticator(&Authenticator::AppFlowyCloud);
     let auth_service = self.cloud_services.get_user_service()?;
-    let response = auth_service
-      .sign_in_with_passcode(email, passcode)
-      .await?;
+    let response = auth_service.sign_in_with_passcode(email, passcode).await?;
     Ok(response)
   }
 
