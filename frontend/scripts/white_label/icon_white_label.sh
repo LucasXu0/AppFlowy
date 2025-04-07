@@ -12,7 +12,7 @@ show_usage() {
 
 NEW_ICON_PATH=""
 ICON_DIR="resources/flowy_icons"
-ICON_NAME_NEED_REPLACE=("flowy_logo.svg" "flowy_ai_chat_logo.svg")
+ICON_NAME_NEED_REPLACE=("flowy_logo.svg" "flowy_ai_chat_logo.svg" "flowy_logo_dark_mode.svg" "flowy_logo_text.svg")
 
 while [[ $# -gt 0 ]]; do
     case $1 in
