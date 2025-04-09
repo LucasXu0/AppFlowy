@@ -69,7 +69,8 @@
     "logIn": "Log in",
     "generalError": "Something went wrong. Please try again later",
     "limitRateError": "For security reasons, you can only request a magic link every 60 seconds",
-    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes."
+    "magicLinkSentDescription": "A Magic Link was sent to your email. Click the link to complete your login. The link will expire after 5 minutes.",
+    "tokenHasExpiredOrInvalid": "The token has expired or is invalid. Please try again."
   },
   "workspace": {
     "chooseWorkspace": "Choose your workspace",

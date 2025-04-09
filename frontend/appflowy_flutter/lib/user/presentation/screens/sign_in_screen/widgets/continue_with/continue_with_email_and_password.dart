@@ -2,7 +2,6 @@ import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/user/application/sign_in_bloc.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_email.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_magic_link_or_passcode_page.dart';
-import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_password.dart';
 import 'package:appflowy/user/presentation/screens/sign_in_screen/widgets/continue_with/continue_with_password_page.dart';
 import 'package:appflowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_ui/appflowy_ui.dart';
@@ -59,13 +58,14 @@ class _ContinueWithEmailAndPasswordState
             controller.text,
           ),
         ),
-        VSpace(theme.spacing.l),
-        ContinueWithPassword(
-          onTap: () => _pushContinueWithPasswordPage(
-            context,
-            controller.text,
-          ),
-        ),
+        // Enable it after the reset password and forgot password are implemented
+        // VSpace(theme.spacing.l),
+        // ContinueWithPassword(
+        //   onTap: () => _pushContinueWithPasswordPage(
+        //     context,
+        //     controller.text,
+        //   ),
+        // ),
       ],
     );
   }
