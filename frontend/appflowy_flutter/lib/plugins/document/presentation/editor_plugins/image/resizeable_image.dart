@@ -51,7 +51,7 @@ class ResizableImage extends StatefulWidget {
   State<ResizableImage> createState() => _ResizableImageState();
 }
 
-const _kImageBlockComponentMinWidth = 30.0;
+const _kImageBlockComponentMinWidth = 180.0;
 
 class _ResizableImageState extends State<ResizableImage> {
   final documentService = DocumentService();

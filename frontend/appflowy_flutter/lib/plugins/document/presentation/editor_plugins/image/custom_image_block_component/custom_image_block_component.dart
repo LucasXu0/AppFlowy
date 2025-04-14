@@ -168,7 +168,7 @@ class CustomImageBlockComponentState extends State<CustomImageBlockComponent>
       attributes[CustomImageBlockKeys.align] ?? 'center',
     );
     final width = attributes[CustomImageBlockKeys.width]?.toDouble() ??
-        MediaQuery.of(context).size.width;
+        node.renderBox?.size.width;
     final height = attributes[CustomImageBlockKeys.height]?.toDouble();
     final rawImageType = attributes[CustomImageBlockKeys.imageType] ?? 0;
     final imageType = CustomImageType.fromIntValue(rawImageType);
