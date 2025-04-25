@@ -20,6 +20,7 @@ part 'user_workspace_bloc.freezed.dart';
 class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   UserWorkspaceBloc({
     required this.userProfile,
+    this.initialWorkspaceId,
   })  : _userService = UserBackendService(userId: userProfile.id),
         _listener = UserListener(userProfile: userProfile),
         super(UserWorkspaceState.initial()) {
@@ -40,7 +41,9 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               },
             );
 
-            final result = await _fetchWorkspaces();
+            final result = await _fetchWorkspaces(
+              initialWorkspaceId: initialWorkspaceId,
+            );
             final currentWorkspace = result.$1;
             final workspaces = result.$2;
             final isCollabWorkspaceOn =
@@ -54,7 +57,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               Log.info('init open workspace: ${currentWorkspace.workspaceId}');
               await _userService.openWorkspace(
                 currentWorkspace.workspaceId,
-                currentWorkspace.workspaceAuthType,
+                currentWorkspace.workspaceType,
               );
             }
 
@@ -67,8 +70,10 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
-          fetchWorkspaces: () async {
-            final result = await _fetchWorkspaces();
+          fetchWorkspaces: (initialWorkspaceId) async {
+            final result = await _fetchWorkspaces(
+              initialWorkspaceId: initialWorkspaceId,
+            );
 
             final currentWorkspace = result.$1;
             final workspaces = result.$2;
@@ -92,12 +97,12 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               add(
                 OpenWorkspace(
                   currentWorkspace.workspaceId,
-                  currentWorkspace.workspaceAuthType,
+                  currentWorkspace.workspaceType,
                 ),
               );
             }
           },
-          createWorkspace: (name, authType) async {
+          createWorkspace: (name, workspaceType) async {
             emit(
               state.copyWith(
                 actionResult: const UserWorkspaceActionResult(
@@ -109,7 +114,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
             final result = await _userService.createUserWorkspace(
               name,
-              authType,
+              workspaceType,
             );
             final workspaces = result.fold(
               (s) => [...state.workspaces, s],
@@ -132,7 +137,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                 add(
                   OpenWorkspace(
                     s.workspaceId,
-                    s.workspaceAuthType,
+                    s.workspaceType,
                   ),
                 );
               })
@@ -190,7 +195,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   add(
                     OpenWorkspace(
                       workspaces.first.workspaceId,
-                      workspaces.first.workspaceAuthType,
+                      workspaces.first.workspaceType,
                     ),
                   );
                 }
@@ -203,7 +208,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   add(
                     OpenWorkspace(
                       workspaces.first.workspaceId,
-                      workspaces.first.workspaceAuthType,
+                      workspaces.first.workspaceType,
                     ),
                   );
                 }
@@ -219,7 +224,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
               ),
             );
           },
-          openWorkspace: (workspaceId, authType) async {
+          openWorkspace: (workspaceId, workspaceType) async {
             emit(
               state.copyWith(
                 actionResult: const UserWorkspaceActionResult(
@@ -231,7 +236,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
             );
             final result = await _userService.openWorkspace(
               workspaceId,
-              authType,
+              workspaceType,
             );
             final currentWorkspace = result.fold(
               (s) => state.workspaces.firstWhereOrNull(
@@ -369,7 +374,7 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
                   add(
                     OpenWorkspace(
                       workspaces.first.workspaceId,
-                      workspaces.first.workspaceAuthType,
+                      workspaces.first.workspaceType,
                     ),
                   );
                 }
@@ -432,22 +437,24 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
   final UserProfilePB userProfile;
   final UserBackendService _userService;
   final UserListener _listener;
+  final String? initialWorkspaceId;
 
   Future<
       (
         UserWorkspacePB? currentWorkspace,
         List<UserWorkspacePB> workspaces,
         bool shouldOpenWorkspace,
-      )> _fetchWorkspaces() async {
+      )> _fetchWorkspaces({String? initialWorkspaceId}) async {
     try {
       final currentWorkspace =
           await UserBackendService.getCurrentWorkspace().getOrThrow();
+      final currentWorkspaceId = initialWorkspaceId ?? currentWorkspace.id;
       final workspaces = await _userService.getWorkspaces().getOrThrow();
       if (workspaces.isEmpty) {
         workspaces.add(convertWorkspacePBToUserWorkspace(currentWorkspace));
       }
       final currentWorkspaceInList = workspaces
-              .firstWhereOrNull((e) => e.workspaceId == currentWorkspace.id) ??
+              .firstWhereOrNull((e) => e.workspaceId == currentWorkspaceId) ??
           workspaces.firstOrNull;
       return (
         currentWorkspaceInList,
@@ -474,16 +481,18 @@ class UserWorkspaceBloc extends Bloc<UserWorkspaceEvent, UserWorkspaceState> {
 @freezed
 class UserWorkspaceEvent with _$UserWorkspaceEvent {
   const factory UserWorkspaceEvent.initial() = Initial;
-  const factory UserWorkspaceEvent.fetchWorkspaces() = FetchWorkspaces;
+  const factory UserWorkspaceEvent.fetchWorkspaces({
+    String? initialWorkspaceId,
+  }) = FetchWorkspaces;
   const factory UserWorkspaceEvent.createWorkspace(
     String name,
-    AuthTypePB authType,
+    WorkspaceTypePB workspaceType,
   ) = CreateWorkspace;
   const factory UserWorkspaceEvent.deleteWorkspace(String workspaceId) =
       DeleteWorkspace;
   const factory UserWorkspaceEvent.openWorkspace(
     String workspaceId,
-    AuthTypePB authType,
+    WorkspaceTypePB workspaceType,
   ) = OpenWorkspace;
   const factory UserWorkspaceEvent.renameWorkspace(
     String workspaceId,

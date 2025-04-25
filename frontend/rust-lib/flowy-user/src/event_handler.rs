@@ -15,7 +15,7 @@ use serde_json::Value;
 use std::str::FromStr;
 use std::sync::Weak;
 use std::{convert::TryInto, sync::Arc};
-use tracing::{event, trace};
+use tracing::event;
 use uuid::Uuid;
 
 fn upgrade_manager(manager: AFPluginState<Weak<UserManager>>) -> FlowyResult<Arc<UserManager>> {
@@ -334,7 +334,7 @@ pub async fn oauth_sign_in_handler(
 ) -> DataResult<UserProfilePB, FlowyError> {
   let manager = upgrade_manager(manager)?;
   let params = data.into_inner();
-  let authenticator: AuthType = params.authenticator.into();
+  let authenticator: AuthType = params.auth_type.into();
   let user_profile = manager
     .sign_up(authenticator, BoxAny::new(params.map))
     .await?;
@@ -451,7 +451,7 @@ pub async fn open_workspace_handler(
   let params = data.try_into_inner()?;
   let workspace_id = Uuid::from_str(&params.workspace_id)?;
   manager
-    .open_workspace(&workspace_id, AuthType::from(params.workspace_auth_type))
+    .open_workspace(&workspace_id, WorkspaceType::from(params.workspace_type))
     .await?;
   Ok(())
 }
@@ -538,11 +538,11 @@ pub async fn get_all_reminder_event_handler(
   let reminders = manager
     .get_all_reminders()
     .await
+    .unwrap_or_default()
     .into_iter()
     .map(ReminderPB::from)
     .collect::<Vec<_>>();
 
-  trace!("number of reminders: {}", reminders.len());
   data_result_ok(reminders.into())
 }
 
@@ -621,9 +621,9 @@ pub async fn create_workspace_handler(
   manager: AFPluginState<Weak<UserManager>>,
 ) -> DataResult<UserWorkspacePB, FlowyError> {
   let data = data.try_into_inner()?;
-  let auth_type = AuthType::from(data.auth_type);
+  let workspace_type = WorkspaceType::from(data.workspace_type);
   let manager = upgrade_manager(manager)?;
-  let new_workspace = manager.create_workspace(&data.name, auth_type).await?;
+  let new_workspace = manager.create_workspace(&data.name, workspace_type).await?;
   data_result_ok(UserWorkspacePB::from(new_workspace))
 }
 
