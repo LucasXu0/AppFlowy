@@ -1,5 +1,6 @@
 use client_api::entity::guest_dto::{
-  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedUser, SharedViewDetails,
+  ListSharedViewResponse, RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedUser,
+  SharedViewDetails,
 };
 use client_api::entity::{AFAccessLevel, AFRole};
 use collab_folder::{View, ViewIcon, ViewLayout};
@@ -835,6 +836,35 @@ impl From<SharedViewDetails> for RepeatedSharedUserPB {
 pub struct GetSharedUsersPayloadPB {
   #[pb(index = 1)]
   pub view_id: String,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct SharedViewPB {
+  #[pb(index = 1)]
+  pub view_id: String,
+  #[pb(index = 2)]
+  pub access_level: AFAccessLevelPB,
+}
+
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct RepeatedSharedViewResponsePB {
+  #[pb(index = 1)]
+  pub shared_views: Vec<SharedViewPB>,
+}
+
+impl From<ListSharedViewResponse> for RepeatedSharedViewResponsePB {
+  fn from(resp: ListSharedViewResponse) -> Self {
+    RepeatedSharedViewResponsePB {
+      shared_views: resp
+        .shared_views
+        .into_iter()
+        .map(|v| SharedViewPB {
+          view_id: v.view_id.to_string(),
+          access_level: v.access_level.into(),
+        })
+        .collect(),
+    }
+  }
 }
 
 // impl<'de> Deserialize<'de> for ViewDataType {

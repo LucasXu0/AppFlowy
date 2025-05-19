@@ -19,7 +19,8 @@ use crate::view_operation::{
 use arc_swap::ArcSwapOption;
 use client_api::entity::PublishInfo;
 use client_api::entity::guest_dto::{
-  RevokeSharedViewAccessRequest, ShareViewWithGuestRequest, SharedViewDetails,
+  ListSharedViewResponse, RevokeSharedViewAccessRequest, ShareViewWithGuestRequest,
+  SharedViewDetails,
 };
 use client_api::entity::workspace_dto::PublishInfoView;
 use collab::core::collab::{DataSource, IndexContentReceiver};
@@ -2135,6 +2136,16 @@ impl FolderManager {
       .into_iter()
       .filter(|id| !my_private_view_ids.contains(id))
       .collect()
+  }
+
+  /// Get the shared views of the workspace.
+  pub async fn get_shared_views(&self) -> FlowyResult<ListSharedViewResponse> {
+    let workspace_id = self.user.workspace_id()?;
+    let resp = self
+      .cloud_service()?
+      .get_shared_views(&workspace_id)
+      .await?;
+    Ok(resp)
   }
 }
 
