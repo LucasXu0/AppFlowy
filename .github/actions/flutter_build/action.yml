@@ -28,6 +28,14 @@ runs:
     - name: Checkout source code
       uses: actions/checkout@v4
 
+    - name: Install flutter
+      id: flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: "stable"
+        flutter-version: ${{ inputs.flutter_version }}
+        cache: true
+
     - name: Install Rust toolchain
       id: rust_toolchain
       uses: actions-rs/toolchain@v1
@@ -37,14 +45,6 @@ runs:
         override: true
         profile: minimal
 
-    - name: Install flutter
-      id: flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: "stable"
-        flutter-version: ${{ inputs.flutter_version }}
-        cache: true
-
     - uses: Swatinem/rust-cache@v2
       with:
         prefix-key: ${{ inputs.os }}
@@ -53,6 +53,7 @@ runs:
         cache-all-crates: true
 
     - uses: taiki-e/install-action@v2
+      if: steps.cache-appflowy-core.outputs.cache-hit != 'true'
       with:
         tool: cargo-make@${{ inputs.cargo_make_version }}, duckscript_cli
 
@@ -77,14 +78,45 @@ runs:
         esac
         cargo make appflowy-flutter-deps-tools
 
-    - name: Build AppFlowy
+    # hash the .rs files and the Cargo.toml files
+    - name: Hash Rust files and Cargo.toml
+      id: hash_rust_files
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          HASH_CMD="shasum"
+        else
+          HASH_CMD="sha1sum"
+        fi
+        RUST_FILES_HASH=$(find frontend/rust-lib -type f -name '*.rs' -print0 | sort -z | xargs -0 $HASH_CMD | $HASH_CMD | awk '{print $1}')
+        CARGO_TOML_HASH=$($HASH_CMD frontend/rust-lib/Cargo.toml | awk '{print $1}')
+        COMBINED_HASH="${RUST_FILES_HASH}${CARGO_TOML_HASH}"
+        echo "combined_hash=$(echo $COMBINED_HASH | $HASH_CMD | awk '{print $1}')" >> $GITHUB_OUTPUT
+
+    - name: Cache AppFlowy Core build
+      id: cache-appflowy-core
+      uses: actions/cache@v4
+      with:
+        path: frontend/appflowy_backend
+        key: ${{ runner.os }}-appflowy-core-${{ steps.hash_rust_files.outputs.combined_hash }}
+
+    - uses: Swatinem/rust-cache@v2
+      if: steps.cache-appflowy-core.outputs.cache-hit != 'true'
+      with:
+        prefix-key: ${{ inputs.os }}
+        workspaces: |
+          frontend/rust-lib
+        cache-all-crates: true
+
+    - name: Build AppFlowy Core
+      if: steps.cache-appflowy-core.outputs.cache-hit != 'true'
       working-directory: frontend
       run: cargo make --profile ${{ inputs.flutter_profile }} appflowy-core-dev
       shell: bash
 
     - name: Run code generation
       working-directory: frontend
-      run: cargo make code_generation
+      run: ./scripts/code_generation/generate.sh
       shell: bash
 
     - name: Flutter Analyzer
