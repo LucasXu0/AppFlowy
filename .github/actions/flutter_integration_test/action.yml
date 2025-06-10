@@ -71,6 +71,8 @@ runs:
     - name: Run Flutter integration tests
       working-directory: frontend/appflowy_flutter
       run: |
+        flutter pub get
+
         export DISPLAY=:99
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         sudo apt-get install network-manager
