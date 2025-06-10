@@ -95,6 +95,7 @@ jobs:
           cargo_make_version: ${{ env.CARGO_MAKE_VERSION }}
           rust_target: ${{ matrix.target }}
           flutter_profile: ${{ matrix.flutter_profile }}
+          use_cache: 'false'
 
   prepare-macos:
     if: github.event.pull_request.draft != true
