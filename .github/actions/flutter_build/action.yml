@@ -20,6 +20,10 @@ inputs:
   flutter_profile:
     description: "The profile to build with"
     required: true
+  use_cache:
+    description: "Whether to use the cache"
+    required: false
+    default: 'true'
 
 runs:
   using: "composite"
@@ -43,9 +47,10 @@ runs:
       with:
         channel: "stable"
         flutter-version: ${{ inputs.flutter_version }}
-        cache: true
+        cache: ${{ inputs.use_cache == 'true' }}
 
     - uses: Swatinem/rust-cache@v2
+      if: ${{ inputs.use_cache == 'true' }}
       with:
         prefix-key: ${{ inputs.os }}
         workspaces: |
